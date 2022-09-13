@@ -37,14 +37,15 @@
 using namespace llvm;
 
 // Command line parameters.
-cl::list<string> InputFilenames(
-    cl::Positional, cl::OneOrMore, cl::desc("<input bitcode files>"));
-
+cl::list<string> InputFilenames(             
+    cl::Positional, cl::OneOrMore, cl::desc("<input bitcode files>"));    // cl::OneOrMore：控制在程序的命令行上允许（或要求）指定选项的次数,至少1次
+                                                                          // cl::Positional: 这是一个没有与之关联的命令行选项的位置参数
 cl::opt<unsigned> VerboseLevel(
-    "verbose-level", cl::desc("Print information at which verbose level"),
+    "verbose-level", cl::desc("Print information at which verbose level"),   // cl::desc参数，说明该命令行选项的作用是什么; 如果是单独写一个程序，在main函数的开头写如下代码：
+	                                                                     // cl::ParseCommandLineOptions(argc, argv,);则可以在执行testCM -help时将cl::desc对应的描述输出出来。
     cl::init(0));
 
-cl::opt<bool> SecurityChecks(
+cl::opt<bool> SecurityChecks(       // 调用时：程序名 -sc
     "sc", 
     cl::desc("Identify sanity checks"), 
     cl::NotHidden, cl::init(false));
@@ -52,7 +53,7 @@ cl::opt<bool> SecurityChecks(
 cl::opt<bool> MissingChecks(
 		"mc",
 		cl::desc("Identify missing-check bugs"),
-		cl::NotHidden, cl::init(false));
+		cl::NotHidden, cl::init(false));    // cl::init()：设定初始值。cl::Optional表明该选项是可选的。
 
 
 GlobalContext GlobalCtx;
@@ -129,12 +130,12 @@ void PrintResults(GlobalContext *GCtx) {
 int main(int argc, char **argv) {
 
 	// Print a stack trace if we signal out.
-	sys::PrintStackTraceOnErrorSignal(argv[0]);
-	PrettyStackTraceProgram X(argc, argv);
+	sys::PrintStackTraceOnErrorSignal(argv[0]);     // 打印异常栈轨迹Stack Trace; argv[0]是当前执行的exe文件名
+	PrettyStackTraceProgram X(argc, argv);          // 发生崩溃时，此对象将指定的程序参数作为堆栈跟踪打印到流中
 
 	llvm_shutdown_obj Y;  // Call llvm_shutdown() on exit.
 
-	cl::ParseCommandLineOptions(argc, argv, "global analysis\n");
+	cl::ParseCommandLineOptions(argc, argv, "global analysis\n");  
 	SMDiagnostic Err;
 
 	// Loading modules
