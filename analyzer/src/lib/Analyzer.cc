@@ -56,7 +56,7 @@ cl::opt<bool> MissingChecks(
 		cl::NotHidden, cl::init(false));    // cl::init()：设定初始值。cl::Optional表明该选项是可选的。
 
 
-GlobalContext GlobalCtx;
+GlobalContext GlobalCtx;   // NumSecurityChecks, NumCondStatements的个数，等定义
 
 
 void IterativeModulePass::run(ModuleList &modules) {
@@ -135,16 +135,17 @@ int main(int argc, char **argv) {
 
 	llvm_shutdown_obj Y;  // Call llvm_shutdown() on exit.
 
-	cl::ParseCommandLineOptions(argc, argv, "global analysis\n");  
-	SMDiagnostic Err;
+	cl::ParseCommandLineOptions(argc, argv, "global analysis\n");  // 命令行接口
+	SMDiagnostic Err;      // 此类的实例封装一个诊断报告，允许作为插入记号诊断程序打印到raw_ostream
 
 	// Loading modules
 	OP << "Total " << InputFilenames.size() << " file(s)\n";
 
 	for (unsigned i = 0; i < InputFilenames.size(); ++i) {
 
-		LLVMContext *LLVMCtx = new LLVMContext();
-		unique_ptr<Module> M = parseIRFile(InputFilenames[i], Err, *LLVMCtx);
+		LLVMContext *LLVMCtx = new LLVMContext();    // 实例化一个LLVMContext对象，以存放一次LLVM编译的从属数据，使得LLVM线程安全。
+		unique_ptr<Module> M = parseIRFile(InputFilenames[i], Err, *LLVMCtx);   // unique_ptr：智能指针，在适当时机自动释放堆内存空间
+                                                            // 如果给定文件包含位码图像，请为其返回一个模块。否则，请尝试将其解析为 LLVM 程序集并为其返回模块。
 
 		if (M == NULL) {
 			OP << argv[0] << ": error loading file '"
@@ -152,31 +153,31 @@ int main(int argc, char **argv) {
 			continue;
 		}
 
-		Module *Module = M.release();
-		StringRef MName = StringRef(strdup(InputFilenames[i].data()));
-		GlobalCtx.Modules.push_back(make_pair(Module, MName));
-		GlobalCtx.ModuleMaps[Module] = InputFilenames[i];
+		Module *Module = M.release();          // 释放
+		StringRef MName = StringRef(strdup(InputFilenames[i].data()));  // strdup:返回一个指针,指向为复制字符串分配的空间; StringRef:表示一个固定不变的字符串的引用（包括一个字符数组的指针和长度）
+		GlobalCtx.Modules.push_back(make_pair(Module, MName));  // make_pair:拼接，类似dict; push_back:函数将一个新的元素加到最后面
+		GlobalCtx.ModuleMaps[Module] = InputFilenames[i];  
 	}
 
 	// Main workflow
-	LoadStaticData(&GlobalCtx);
+	LoadStaticData(&GlobalCtx);    // Load error-handling functions/load functions that copy/move values/load data-fetch functions
 	
 	// Initilaize gloable type map
 	TypeInitializerPass TIPass(&GlobalCtx);
 	TIPass.run(GlobalCtx.Modules);
 	TIPass.BuildTypeStructMap();
 
-	// Build global callgraph.
+	// Build global callgraph.   1、两层类分析+类型逃逸、循环展开、指针/别名分析
 	CallGraphPass CGPass(&GlobalCtx);
 	CGPass.run(GlobalCtx.Modules);
 
-	// Identify sanity checks
+	// Identify sanity checks    2
 	if (SecurityChecks) {
 		SecurityChecksPass SCPass(&GlobalCtx);
 		SCPass.run(GlobalCtx.Modules);
 	}
 
-	// Identify missing-check bugs
+	// Identify missing-check bugs  3
 	if (MissingChecks) {
 		// Pointer analysis
 		PointerAnalysisPass PAPass(&GlobalCtx);
