@@ -24,15 +24,15 @@
 // Setup functions that handle errors
 static void SetErrorHandleFuncs(set<string> &ErrorHandleFuncs) {
 
-	string exepath = sys::fs::getMainExecutable(NULL, NULL);
+	string exepath = sys::fs::getMainExecutable(NULL, NULL);        // 返回主可执行文件的路径，给定程序启动时 argv[0] 的值和 main 本身的地址。
 	string exedir = exepath.substr(0, exepath.find_last_of('/'));
 	string line;
-  ifstream errfile(exedir	+ "/configs/err-funcs");
+  ifstream errfile(exedir	+ "/configs/err-funcs");      // 打开文件夹，硬盘到内存。里面共572个函数名
   if (errfile.is_open()) {
 		while (!errfile.eof()) {
-			getline (errfile, line);
-			if (line.length() > 1) {
-				ErrorHandleFuncs.insert(line);
+			getline (errfile, line);         // line:接收输入字符串的 string 变量的名称
+			if (line.length() > 1) {         // .length():用来获取字符串的长度。
+				ErrorHandleFuncs.insert(line);    // 把读出来的行赋给ErrorHandleFuncs
 			}
 		}
     errfile.close();
