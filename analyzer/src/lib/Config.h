@@ -66,7 +66,7 @@ static void SetCopyFuncs(
 		// <src, dst, size>
 		map<string, tuple<int8_t, int8_t, int8_t>> &CopyFuncs) {
 
-	CopyFuncs["memcpy"] = make_tuple(1, 0, 2);
+	CopyFuncs["memcpy"] = make_tuple(1, 0, 2);     // 类list
 	CopyFuncs["__memcpy"] = make_tuple(1, 0, 2);
 	CopyFuncs["llvm.memcpy.p0i8.p0i8.i32"] = make_tuple(1, 0, 2);
 	CopyFuncs["llvm.memcpy.p0i8.p0i8.i64"] = make_tuple(1, 0, 2);
@@ -81,7 +81,7 @@ static void SetCopyFuncs(
 // <name, <dst_arg#, source_arg#>>
 static void SetDataFetchFuncs(
 
-		map<string, pair<int8_t, int8_t>> &DataFetchFuncs) {
+		map<string, pair<int8_t, int8_t>> &DataFetchFuncs) {    // 共37个
 
 	DataFetchFuncs["copy_from_user"] = make_pair(0, 1);
 	DataFetchFuncs["_copy_from_user"] = make_pair(0, 1);
