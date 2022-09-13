@@ -110,11 +110,11 @@ void IterativeModulePass::run(ModuleList &modules) {
 void LoadStaticData(GlobalContext *GCtx) {
 
 	// Load error-handling functions
-	SetErrorHandleFuncs(GCtx->ErrorHandleFuncs);
+	SetErrorHandleFuncs(GCtx->ErrorHandleFuncs);  //把config下err-funcs文件中的函数名+其它几个函数名 赋给ErrorHandleFuncs
 	// load functions that copy/move values
-	SetCopyFuncs(GCtx->CopyFuncs);
+	SetCopyFuncs(GCtx->CopyFuncs);               // 类CopyFuncs["memcpy"] = make_tuple(1, 0, 2);
 	// load data-fetch functions
-	SetDataFetchFuncs(GCtx->DataFetchFuncs);
+	SetDataFetchFuncs(GCtx->DataFetchFuncs);     // 类DataFetchFuncs["copy_from_user"] = make_pair(0, 1);
 }
 
 void ProcessResults(GlobalContext *GCtx) {
@@ -163,9 +163,11 @@ int main(int argc, char **argv) {
 	LoadStaticData(&GlobalCtx);    // Load error-handling functions/load functions that copy/move values/load data-fetch functions
 	
 	// Initilaize gloable type map
-	TypeInitializerPass TIPass(&GlobalCtx);
-	TIPass.run(GlobalCtx.Modules);
-	TIPass.BuildTypeStructMap();
+	TypeInitializerPass TIPass(&GlobalCtx);   // 1、TypeValueMap,将每个没有类型名称的全局struct映射到其值名称 
+	                                          // 2、VnameToTypenameMap,将全局变量名称映射到其struct类型名称
+		                                  // 3、根据上面两个，先赋给GlobalCtx的GlobalTypes，然后给TypeToTNameMap
+	TIPass.run(GlobalCtx.Modules);            // 运行，下载了结果。没找到有用信息
+	TIPass.BuildTypeStructMap();              // 根据上面两个，先赋给GlobalCtx的GlobalTypes，然后给TypeToTNameMap
 
 	// Build global callgraph.   1、两层类分析+类型逃逸、循环展开、指针/别名分析
 	CallGraphPass CGPass(&GlobalCtx);
