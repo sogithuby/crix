@@ -36,24 +36,24 @@ class SecurityChecksPass : public IterativeModulePass {
 	private:
 
 	// Dump marked edges.
-	void dumpErrEdges(EdgeErrMap &edgeErrMap);
-	bool isValueErrno(Value *V, Function *F);
+	void dumpErrEdges(EdgeErrMap &edgeErrMap);   // 下载边
+	bool isValueErrno(Value *V, Function *F);    //  //判断值是不是我们需要的常量、常量表达式等，若是，则返回true，否则false
 
 	///
 	/// Identifying sanity checks
 	///
 	// Find and record blocks with error handling
-	void checkErrReturn(Function *F, BBErrMap &bbErrMap);
+	void checkErrReturn(Function *F, BBErrMap &bbErrMap);   // 找到是错误处理的块，标记相关边
 
 	// Find and record blocks with error handling 
-	void checkErrHandle(Function *F, BBErrMap &bbErrMap);
+	void checkErrHandle(Function *F, BBErrMap &bbErrMap);    // 找到错误处理的块，标记相关边
 
-	// Mark the given block with an error flag.
-	void markBBErr(BasicBlock *BB, ErrFlag flag, BBErrMap &bbErrMap);
+	// Mark the given block with an error flag. 
+	void markBBErr(BasicBlock *BB, ErrFlag flag, BBErrMap &bbErrMap);  // 使用预定义的flag标记这些边
 
 	// A lighweiht and inprecise way to check if the function may
 	// return an error
-	bool mayReturnErr(Function *F);
+	bool mayReturnErr(Function *F);     // 存储
 
 	// Collect all blocks that influence the return value
 	void checkErrValueFlow(Function *F, ReturnInst *RI, 
@@ -81,21 +81,21 @@ class SecurityChecksPass : public IterativeModulePass {
 	void markEdgesToErrReturn(BasicBlock *BB, int flag, EdgeErrMap &edgeErrMap);
 
 	// Add identified checks to the set
-	void addSecurityCheck(Value *, Value *, std::set<SecurityCheck *> &);
+	void addSecurityCheck(Value *, Value *, std::set<SecurityCheck *> &);   // 将已识别的检查添加到集合中
 
 	// Incorporate newFlag into existing flag
 	void updateReturnFlag(int &errFlag, int &newFlag);
 	void updateHandleFlag(int &errFlag, int &newFlag);
 	void mergeFlag(int &errFlag, int &newFlag);
 
-	// Find error code based on error handling functions
-	void findErrorCodes(Function *F);
+	// Find error code based on error handling functions.未被执行
+	void findErrorCodes(Function *F);   //安全检查。在securitychecks.cc里面，被注释了，未执行。有东西被删除了
 
 	// Find same-origin variables from the given variable
-	void findSameVariablesFrom(Value *V, std::set<Value *> &VSet);
+	void findSameVariablesFrom(Value *V, std::set<Value *> &VSet);   // 从给定变量中查找相同来源的变量
 
-	// infer error-handling branch for a condition
-	int inferErrBranch(Instruction *Cond);
+	// infer error-handling branch for a condition。里面没有东西
+	int inferErrBranch(Instruction *Cond);           // 推断condition的错误处理分支.里面没写东西
 
 
 	public:
@@ -107,7 +107,7 @@ class SecurityChecksPass : public IterativeModulePass {
 	virtual bool doFinalization(llvm::Module *);
 	virtual bool doModulePass(llvm::Module *);
 
-	// Identify security checks.
+	// Identify security checks.  遍历 CFG 并找到安全检查。这里还只是在条件语句层面
 	void identifySecurityChecks(Function *F, 
 			EdgeErrMap &edgeErrMap, 
 			set<SecurityCheck *> &SCSet);
