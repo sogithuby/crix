@@ -173,7 +173,7 @@ int main(int argc, char **argv) {
 	CallGraphPass CGPass(&GlobalCtx);
 	CGPass.run(GlobalCtx.Modules);
 
-	// Identify sanity checks    2
+	// Identify sanity checks    2、找到错误返回、错误处理的块，把边放入集合中。然后找到满足if限定条件的安全检查语句。
 	if (SecurityChecks) {
 		SecurityChecksPass SCPass(&GlobalCtx);
 		SCPass.run(GlobalCtx.Modules);
@@ -188,9 +188,9 @@ int main(int argc, char **argv) {
 		SecurityChecksPass SCPass(&GlobalCtx);
 		SCPass.run(GlobalCtx.Modules);
 
-		MissingChecksPass MCPass(&GlobalCtx);
-		MCPass.run(GlobalCtx.Modules);
-		MCPass.processResults();
+		MissingChecksPass MCPass(&GlobalCtx);   //这里才是找src、use，构建对等片？
+		MCPass.run(GlobalCtx.Modules);   
+		MCPass.processResults();     //构建交叉约束？
 	}
 
 	// Print final results
