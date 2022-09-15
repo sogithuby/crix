@@ -80,13 +80,14 @@ class MissingChecksPass : public IterativeModulePass {
 
 	private:
 
-		DataFlowAnalysis DFA;
+		DataFlowAnalysis DFA;   //找到所有的源，但这里源的常量+errcode好像没对应，param也没有，SrcSet；UseSet差不多和论文内容写的相符。由SourceSet，找到CVset，跟踪 
 		int MIdx;
 		set<Instruction *>CheckSet;
-
+                // 别名
 		void collectAliasPointers(Function *, LoadInst*, set <Value *> &);
 
 		void evaluateCheckInstruction(Value *, set<Value *> &);
+                // // 跟踪给定关键变量的来源和来源相同的关键变量。CVset
 		void findSourceCV(Value *, set <Value *>&, set <Value *>&);
 		void findInFuncSourceCV(Value *V, set <Value *>&SourceSet, set <Value *>&);
 		void identifyCheckedTargets(Function *, Value *,
@@ -94,8 +95,9 @@ class MissingChecksPass : public IterativeModulePass {
 		void identifyIndirectTargets(Function *, Value *,
 				set<Value *> &);
 
-		void findClosestBranch (Value *Src, Value *SC, set<Value *> &BrSet);
-		void findParallelPaths(set<Value *> &BrSet, set<Path> &PPathSet);
+	        // 
+		void findClosestBranch (Value *Src, Value *SC, set<Value *> &BrSet);  // 找到相近的分支，return instruction、branch instruction
+		void findParallelPaths(set<Value *> &BrSet, set<Path> &PPathSet);   //没有被定义
 
 		void isCheckedForward(Function *F, src_t Src,
 				Value *V, set<BasicBlock *> &Scope, set<Value *> &VSet, 
@@ -105,7 +107,7 @@ class MissingChecksPass : public IterativeModulePass {
 				Value *V, set<BasicBlock *> &Scope, set<Value *> &VSet, 
 				bool &isChecked, unsigned &Depth);
 
-		void countSrcUseChecks(Function *F, Instruction *SCI);
+		void countSrcUseChecks(Function *F, Instruction *SCI);  // 确定每次安全检查中使用的关键变量/函数。
 		void countSrcUseUnchecks(Function *F);
 
 		ModelSC modelCheck(CmpInst *CmpI, Value *SrcUse, int8_t ArgNo);
