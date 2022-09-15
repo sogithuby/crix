@@ -36,29 +36,31 @@ class DataFlowAnalysis {
 		DataFlowAnalysis(GlobalContext *GCtx) {Ctx = GCtx;}
 		~DataFlowAnalysis() {}
 
-		void findSources(Value *V, set<Value *> &SrcSet);
-		void findUses(Instruction *BorderInsn, Value *V, 
+		void findSources(Value *V, set<Value *> &SrcSet);  // ？找到源。通过向后数据流分析收集目标源.但好像缺errcode+param，SrcSet（CVSet给的）.但这里没有srcset，奇怪！！
+		void findUses(Instruction *BorderInsn, Value *V,   // 找到use，使用正向数据流分析收集目标的用途，UseSet；是论文中提到的那4种，有点其他的插入
 				set<use_t> &UseSet, set<Value *> &Visited);
 
-		void performBackwardAnalysis(Function *F, Value *V, set<Value *> &);
+		void performBackwardAnalysis(Function *F, Value *V, set<Value *> &);   // 进行后向分析
 		void resetStructures() { LPSet.clear(); } 
 
 		bool possibleUseStResult(Instruction *, Instruction *);
 
 		// Track the sources and same-origin critical variables of the
 		// given critical variable.
+	        // 跟踪给定关键变量的来源和来源相同的关键变量
 		void findSourceCV(Value *V, set<Value *> &SourceSet, 
 				set<Value *> &CVSet, set<Value *> &TrackedSet);
 		void findInFuncSourceCV(Value *V, set<Value *> &SourceSet, 
 				set<Value *> &CVSet, set<Value *> &TrackedSet);
 
-		// Find code paths for data flows from Start to End
+		// Find code paths for data flows from Start to End  //里面都没东西
 		void findPaths(Value *Start, Value *End, set<Path> &PathSet);
 		// Find code paths for data flows from Start
 		void findPaths(Value *Start, set<Path> &PathSet);
 
 		// Track the sources and same-origin critical variables of the
 		// given pointer of a critical variable.
+	        // 跟踪关键变量的给定指针的源和相同原点关键变量。CVSet
 		void findSourceCVAlias(Value *V, Value *Ptr, set<Value *> &SourceSet, 
 				set<Value *> &CVSet, set<Value *> &TrackedSet);
 
